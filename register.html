@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup - TechStore</title>
+    <link rel="stylesheet" href="signup.css">
+    <script src="signup.js" defer></script>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <header>
+        <div class="logo">TechStore</div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="products.html">Products</a></li>
+                <li><a href="#" id="cart-toggle">Cart (<span id="cart-count">0</span>)</a></li>
+                <li><a href="contact.html">Contact Us</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="register.html" class="active">Signup</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Signup Section -->
+    <section class="signup-container">
+        <h2>Create an Account</h2>
+        <form id="signup-form">
+            <label for="name">Full Name:</label>
+            <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" placeholder="Enter a strong password" required>
+
+            <label for="confirm-password">Confirm Password:</label>
+            <input type="password" id="confirm-password" name="confirm-password" placeholder="Re-enter password" required>
+
+            <button type="submit">Sign Up</button>
+        </form>
+
+        <p class="login-link">Already have an account? <a href="login.html">Login here</a></p>
+        <p id="signup-message"></p>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 TechStore. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

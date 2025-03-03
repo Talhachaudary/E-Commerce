@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - TechStore</title>
+    <link rel="stylesheet" href="login.css">
+    <script src="login.js" defer></script>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <header>
+        <div class="logo">TechStore</div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="products.html">Products</a></li>
+                <li><a href="#" id="cart-toggle">Cart (<span id="cart-count">0</span>)</a></li>
+                <li><a href="contact.html">Contact Us</a></li>
+                <li><a href="login.html" class="active">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Login Section -->
+    <section class="login-container">
+        <h2>Login to TechStore</h2>
+        <form id="login-form">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+
+            <button type="submit">Login</button>
+        </form>
+        
+        <p class="forgot-password"><a href="#">Forgot Password?</a></p>
+        <p class="signup-link">Don't have an account? <a href="register.html">Sign up</a></p>
+        <p id="login-message"></p>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 TechStore. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>
