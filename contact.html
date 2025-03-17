@@ -8,7 +8,44 @@
     <script src="contact.js" defer></script>
 </head>
 <body>
-
+ <!-- Add authentication check right here -->
+ <script>
+    // Authentication check
+    function checkAuthentication() {
+        const token = localStorage.getItem('userToken');
+        const protectedPages = ['profile.html', 'order-confirmation.html', 'checkout.html'];
+        
+        // If this is a protected page and no token exists
+        const currentPage = window.location.pathname.split('/').pop();
+        if (protectedPages.includes(currentPage) && !token) {
+            // Redirect to login
+            window.location.href = `login.html?redirect=${encodeURIComponent(window.location.href)}`;
+            return false;
+        }
+        
+        // Update UI based on auth state
+        if (token) {
+            // User is logged in, show logout button and hide login button
+            const loginBtn = document.querySelector('.login-btn');
+            const logoutBtn = document.querySelector('.logout-btn');
+            
+            if (loginBtn) loginBtn.style.display = 'none';
+            if (logoutBtn) logoutBtn.style.display = 'inline-block';
+        } else {
+            // User is logged out, show login button and hide logout button
+            const loginBtn = document.querySelector('.login-btn');
+            const logoutBtn = document.querySelector('.logout-btn');
+            
+            if (loginBtn) loginBtn.style.display = 'inline-block';
+            if (logoutBtn) logoutBtn.style.display = 'none';
+        }
+        
+        return true;
+    }
+    
+    // Run auth check when page loads
+    checkAuthentication();
+</script>
     <!-- Navigation Bar -->
     <header>
         <div class="logo">TechStore</div>

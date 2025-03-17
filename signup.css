@@ -109,6 +109,27 @@ button:hover {
     color: red;
 }
 
+.password-strength {
+    margin-top: 5px;
+    font-size: 0.85em;
+}
+
+.password-strength.weak {
+    color: #e74c3c;
+}
+
+.password-strength.medium {
+    color: #f39c12;
+}
+
+.password-strength.strong {
+    color: #3498db;
+}
+
+.password-strength.very-strong {
+    color: #2ecc71;
+}
+
 footer {
     text-align: center;
     padding: 10px;

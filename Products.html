@@ -5,58 +5,306 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Products - TechStore</title>
     <link rel="stylesheet" href="Product.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <script src="Product.js" defer></script>
+    <style>
+        .logout-btn {
+            color: #e74c3c !important;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        
+        .logout-btn:hover {
+            color: #c0392b !important;
+            text-decoration: underline;
+        }
+        
+        /* Make the notification styling more visible */
+        #notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        #notification-container .notification {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
 </head>
 <body>
-
+ <!-- Add authentication check right here -->
+ <script>
+    // Authentication check
+    function checkAuthentication() {
+        const token = localStorage.getItem('userToken');
+        const protectedPages = ['profile.html', 'order-confirmation.html', 'checkout.html'];
+        
+        // If this is a protected page and no token exists
+        const currentPage = window.location.pathname.split('/').pop();
+        if (protectedPages.includes(currentPage) && !token) {
+            // Redirect to login
+            window.location.href = `login.html?redirect=${encodeURIComponent(window.location.href)}`;
+            return false;
+        }
+        
+        // Update UI based on auth state
+        if (token) {
+            // User is logged in, show logout button and hide login button
+            const loginBtn = document.querySelector('.login-btn');
+            const logoutBtn = document.querySelector('.logout-btn');
+            
+            if (loginBtn) loginBtn.style.display = 'none';
+            if (logoutBtn) logoutBtn.style.display = 'inline-block';
+        } else {
+            // User is logged out, show login button and hide logout button
+            const loginBtn = document.querySelector('.login-btn');
+            const logoutBtn = document.querySelector('.logout-btn');
+            
+            if (loginBtn) loginBtn.style.display = 'inline-block';
+            if (logoutBtn) logoutBtn.style.display = 'none';
+        }
+        
+        return true;
+    }
+    
+    // Run auth check when page loads
+    checkAuthentication();
+</script>
     <!-- Navigation Bar -->
     <header>
         <div class="logo">TechStore</div>
+        <div class="search-container">
+            <form id="search-form">
+                <input type="text" id="search-input" placeholder="Search products...">
+                <button type="submit"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
         <nav>
             <ul>
                 <li><a href="index.html">Home</a></li>
-                <li><a href="#">Products</a></li>
+                <li><a href="#" class="active">Products</a></li>
                 <li><a href="#" id="cart-toggle">Cart (<span id="cart-count">0</span>)</a></li>
-                <li><a href="login.html">Login</a></li>
+                <li><a href="login.html" class="login-btn">Login</a></li>
+                <!-- Replace your logout button with this one -->
+                <li>
+                    <a href="login.html" class="logout-btn" style="display: none;" id="logout-button">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+                <li><a href="contact.html">Contact us</a></li>
             </ul>
         </nav>
     </header>
 
     <!-- Product Categories -->
-    <section class="categories">
-        <button class="category-btn" onclick="filterProducts('all')">All</button>
-        <button class="category-btn" onclick="filterProducts('ram')">RAMs</button>
-        <button class="category-btn" onclick="filterProducts('ssd')">SSDs</button>
-        <button class="category-btn" onclick="filterProducts('headphones')">Headphones</button>
-        <button class="category-btn" onclick="filterProducts('cooling')">Cooling Pads</button>
-        <button class="category-btn" onclick="filterProducts('mousepad')">Mouse Pads</button>
-        <button class="category-btn" onclick="filterProducts('KeyBoard')">KeyBoard</button>
-        <button class="category-btn" onclick="filterProducts('Mouse')">Mouse</button>
+    <section class="category-section">
+        <h2>Product Categories</h2>
+        <div id="category-filters" class="category-filters">
+            <!-- Will be populated dynamically by JavaScript -->
+            <div class="loading">Loading categories...</div>
+        </div>
     </section>
 
     <!-- Product Listing -->
-    <section class="products" id="product-container">
-        <!-- Dynamic Products will be inserted here via JavaScript -->
+    <section class="products">
+        
+            </div>
+        </div>
+        
+        <div id="product-container" class="product-container">
+            <!-- Products will be inserted here by JavaScript -->
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Loading products...</p>
+            </div>
+        </div>
     </section>
-    <div  id="cart-overlay" class="cart-overlay">
 
-        <div class="cart">
-            <h2>Your Cart</h2>
-            <ul id="cart-items"></ul>
-            <button id="checkout-btn">Checkout</button>
-            <button id="close-cart">Close</button>
+    <!-- Product Modal -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content">
+            <span id="close-modal" class="close">&times;</span>
+            <div class="modal-product-details">
+                <img id="modal-img" src="" alt="Product Image">
+                <div class="modal-info">
+                    <h2 id="modal-title"></h2>
+                    <p id="modal-price" class="price"></p>
+                    <p id="modal-category"></p>
+                    <p id="modal-stock"></p>
+                    <p id="stock-warning" class="stock-warning"></p>
+                    <p id="modal-description"></p>
+                    <button id="modal-add-to-cart" class="add-to-cart-btn">Add to Cart</button>
+                </div>
+            </div>
+            
+            <!-- Reviews Section -->
+            <!-- <div class="product-reviews">
+                <h3>Customer Reviews</h3>
+                <ul id="reviews-list">
+                    <!-- Reviews will be dynamically loaded here -->
+                </ul>
+                
+                <div id="review-form-container">
+                    <!-- Review form will show here when user is logged in -->
+                </div>
+            </div> -->
         </div>
     </div>
-    <!-- Modal Structure -->
-<div id="product-modal" class="modal">
-    <div id="modal-content" class="modal-content">
-        <!-- Product details will be dynamically inserted here -->
+
+    <!-- Shopping Cart -->
+    <div id="cart-overlay" class="cart-overlay">
+        <div class="cart">
+            <div class="cart-header">
+                <h2>Your Cart</h2>
+                <button id="close-cart" class="close-btn">&times;</button>
+            </div>
+            <ul id="cart-items">
+                <!-- Cart items will be inserted here -->
+            </ul>
+            <div class="cart-footer">
+                <div class="cart-total">
+                    <span>Total:</span>
+                    <span id="cart-total">$0.00</span>
+                </div>
+                <button id="checkout-btn" disabled>Checkout</button>
+            </div>
+        </div>
     </div>
-</div>
+
+    <!-- No products found message -->
+    <div id="no-products-message" class="no-products-message" style="display: none;">
+        <i class="fas fa-search"></i>
+        <h3>No products found</h3>
+        <p>Try different search terms or categories</p>
+    </div>
 
     <footer>
-        <p>&copy; 2025 TechStore. All rights reserved.</p>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>About Us</h3>
+                <p>TechStore is your one-stop shop for all computer spare parts. We offer high-quality components at competitive prices.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="#">Products</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="#">Terms & Conditions</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Info</h3>
+                <p><i class="fas fa-map-marker-alt"></i> 123 Tech Street, City</p>
+                <p><i class="fas fa-phone"></i> (123) 456-7890</p>
+                <p><i class="fas fa-envelope"></i> info@techstore.com</p>
+            </div>
+            <div class="footer-section">
+                <h3>Connect With Us</h3>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 TechStore. All rights reserved.</p>
+        </div>
     </footer>
+
+    <!-- Notification container for alerts -->
+    <div id="notification-container"></div>
+
+    <script>
+        
+    // Replace your current logout function with this one
+    function logout(e) {
+        // If called from an event, prevent default
+        if (e) e.preventDefault();
+        
+        console.log("Logout function executing");
+        
+        // Clear auth data immediately
+        localStorage.removeItem("userToken");
+        localStorage.removeItem("userName");
+        localStorage.removeItem("userEmail");
+        
+        // Use direct navigation without setTimeout
+        console.log("Redirecting to login page");
+        window.location.href = "login.html";
+        
+        // This won't execute due to redirect, but keeping it as a fallback
+        return false;
+    }
+    
+    // Run auth check when DOM is fully loaded
+    document.addEventListener("DOMContentLoaded", function() {
+        console.log("DOM loaded - checking authentication");
+        
+        // Authentication check
+        function checkAuthentication() {
+            const token = localStorage.getItem('userToken');
+            console.log("Authentication check - Token exists:", !!token);
+            
+            // Update UI based on auth state
+            if (token) {
+                // User is logged in, show logout button and hide login button
+                const loginBtn = document.querySelector('.login-btn');
+                const logoutBtn = document.querySelector('.logout-btn');
+                
+                console.log("Login button found:", !!loginBtn);
+                console.log("Logout button found:", !!logoutBtn);
+                
+                if (loginBtn) loginBtn.style.display = 'none';
+                if (logoutBtn) logoutBtn.style.display = 'inline-block';
+            } else {
+                // User is logged out, show login button and hide logout button
+                const loginBtn = document.querySelector('.login-btn');
+                const logoutBtn = document.querySelector('.logout-btn');
+                
+                if (loginBtn) loginBtn.style.display = 'inline-block';
+                if (logoutBtn) logoutBtn.style.display = 'none';
+            }
+        }
+        
+        checkAuthentication();
+    });
+</script>
+
+<!-- Add this just before the closing </body> tag -->
+<script>
+    // Set up logout button event handler after DOM is ready
+    document.addEventListener("DOMContentLoaded", function() {
+        const logoutButton = document.getElementById("logout-button");
+        if (logoutButton) {
+            logoutButton.addEventListener("click", function(e) {
+                e.preventDefault();
+                console.log("Logout button clicked");
+                
+                // Clear auth data
+                localStorage.removeItem("userToken");
+                localStorage.removeItem("userName");
+                localStorage.removeItem("userEmail");
+                
+                // Navigate directly
+                window.location.replace("login.html");
+            });
+        }
+    });
+</script>
 
 </body>
 </html>

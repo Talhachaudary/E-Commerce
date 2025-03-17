@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation - TechStore</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="script.js" defer></script>
+    <style>
+        .order-confirmation {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .confirmation-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .confirmation-header i {
+            font-size: 4em;
+            color: #4CAF50;
+            margin-bottom: 15px;
+        }
+        
+        .order-details {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .order-items {
+            margin: 20px 0;
+        }
+        
+        .order-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .order-item img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+        
+        .item-details {
+            flex: 1;
+        }
+        
+        .order-total {
+            text-align: right;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        
+        .next-steps {
+            margin: 30px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <header>
+        <div class="logo">TechStore</div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="Products.html">Products</a></li>
+                <li><a href="#" id="cart-toggle">Cart (<span id="cart-count">0</span>)</a></li>
+                <li><a href="login.html" class="login-btn">Login</a></li>
+                <li><a href="contact.html">Contact us</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Order Confirmation -->
+    <section class="order-confirmation">
+        <div class="confirmation-header">
+            <i class="fas fa-check-circle"></i>
+            <h2>Order Confirmed!</h2>
+            <p>Thank you for your purchase. Your order has been received.</p>
+        </div>
+        
+        <div class="order-details">
+            <h3>Order Details</h3>
+            <p><strong>Order ID:</strong> <span id="order-id"></span></p>
+            <p><strong>Date:</strong> <span id="order-date"></span></p>
+            <p><strong>Status:</strong> <span id="order-status">Processing</span></p>
+        </div>
+        
+        <div class="order-items">
+            <h3>Items Ordered</h3>
+            <div id="order-items-list">
+                <!-- Will be populated by JavaScript -->
+                <div class="loading">Loading order items...</div>
+            </div>
+        </div>
+        
+        <div class="order-total">
+            <p>Total: $<span id="order-total">0.00</span></p>
+        </div>
+        
+        <div class="next-steps">
+            <h3>What's Next?</h3>
+            <p>We're processing your order and will send you a confirmation email shortly. You can track your order status in your <a href="#">account</a>.</p>
+        </div>
+        
+        <div class="buttons">
+            <a href="index.html" class="btn">Continue Shopping</a>
+            <a href="#" class="btn" id="track-order-btn">Track Order</a>
+        </div>
+    </section>
+
+    <!-- Shopping Cart -->
+    <div class="cart-overlay" id="cart-overlay">
+        <!-- Cart content -->
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>About Us</h3>
+                <p>TechStore is your one-stop shop for all computer spare parts. We offer high-quality components at competitive prices.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="Products.html">Products</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="#">Terms & Conditions</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Info</h3>
+                <p><i class="fas fa-map-marker-alt"></i> 123 Tech Street, City</p>
+                <p><i class="fas fa-phone"></i> (123) 456-7890</p>
+                <p><i class="fas fa-envelope"></i> info@techstore.com</p>
+            </div>
+            <div class="footer-section">
+                <h3>Connect With Us</h3>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 TechStore. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Order Confirmation Script -->
+    <script>
+        // Define API URL if not already defined
+        if (typeof API_URL === 'undefined')
+         {
+            window.API_URL = "http://127.0.0.1:5000";
+        }
+    
+        // Replace your onDOMContentLoaded function with this:
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log("Order confirmation page loaded");
+            
+            // Get DOM elements
+            const orderIdDisplay = document.getElementById("order-id");
+            const orderStatusDisplay = document.getElementById("order-status");
+            const orderDateDisplay = document.getElementById("order-date");
+            const orderTotalDisplay = document.getElementById("order-total");
+            const orderItemsList = document.getElementById("order-items-list");
+            
+            // Check for required elements
+            if (!orderItemsList) {
+                console.error("Missing order-items-list element in the HTML");
+                return;
+            }
+            
+            // Check URL for order ID
+            const urlParams = new URLSearchParams(window.location.search);
+            let orderId = urlParams.get('orderId') || urlParams.get('id');
+            console.log("Order ID from URL:", orderId);
+            
+            // Get authentication token
+            const token = localStorage.getItem("userToken");
+            console.log("Token available:", !!token);
+            
+            // Add this debug code
+            if (token) {
+                const tokenParts = token.split('.');
+                console.log("Token structure:", {
+                    parts: tokenParts.length,
+                    isJwt: tokenParts.length === 3,
+                    firstChars: token.substring(0, 15) + "...",
+                });
+                
+                // Try to decode the token (middle part)
+                try {
+                    if (tokenParts.length >= 2) {
+                        // Decode base64
+                        const payload = JSON.parse(atob(tokenParts[1].replace(/-/g, '+').replace(/_/g, '/')));
+                        console.log("Token expiration:", new Date(payload.exp * 1000));
+                        console.log("Current time:", new Date());
+                        console.log("Token expired:", payload.exp * 1000 < Date.now());
+                    }
+                } catch (e) {
+                    console.error("Error decoding token:", e);
+                }
+            }
+            
+            if (!token) {
+                // No token found, redirect to login
+                console.error("No authentication token found");
+                orderItemsList.innerHTML = `
+                    <div style="text-align:center; padding:20px; color:#e74c3c;">
+                        <h3>Authentication Required</h3>
+                        <p>Please log in to view your order details.</p>
+                        <button onclick="window.location.href='login.html?redirect='+encodeURIComponent(window.location.href)" class="btn">Login</button>
+                    </div>
+                `;
+                return;
+            }
+            
+            if (!orderId) {
+                // No order ID in URL, try localStorage
+                orderId = localStorage.getItem("lastOrderId");
+                console.log("Order ID from localStorage:", orderId);
+                
+                if (!orderId) {
+                    // Still no order ID
+                    orderItemsList.innerHTML = `
+                        <div style="text-align:center; padding:20px; color:#e74c3c;">
+                            <h3>Order Not Found</h3>
+                            <p>We couldn't find your order information.</p>
+                            <button onclick="window.location.href='orders.html'" class="btn">View All Orders</button>
+                        </div>
+                    `;
+                    return;
+                }
+            }
+            
+            // Show loading state
+            orderItemsList.innerHTML = `
+                <div style="text-align:center; padding:20px;">
+                    <div style="border:4px solid #f3f3f3; border-top:4px solid #3498db; border-radius:50%; width:30px; height:30px; margin:0 auto 15px; animation:spin 1s linear infinite;"></div>
+                    <p>Loading your order details...</p>
+                </div>
+            `;
+            
+            // Add animation style
+            const style = document.createElement('style');
+            style.textContent = '@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
+            document.head.appendChild(style);
+            
+            // Fetch order details
+            fetch(`${API_URL}/api/orders/${orderId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',  // Add this for cookies if needed -->
+                mode: 'cors'  // Explicitly set CORS mode
+            })
+            .then(response => {
+                console.log("Response status:", response.status);
+                console.log("Response headers:", response.headers);
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        // Token expired or invalid
+                        console.error("Authentication failed:", response.status);
+                        return response.json().then(err => {
+                            console.error("Error details:", err);
+                            throw new Error("Your session has expired. Please login again.");
+                        });
+                    }
+                    throw new Error(`Error: ${response.status}`);
+                }
+                
+                return response.json();
+            })
+            .then(order => {
+                console.log("Order data:", order);
+                
+                // Display order information
+                if (orderIdDisplay) orderIdDisplay.textContent = order.id;
+                if (orderStatusDisplay) orderStatusDisplay.textContent = order.status;
+                if (orderDateDisplay) orderDateDisplay.textContent = order.created_at;
+                if (orderTotalDisplay) orderTotalDisplay.textContent = `$${parseFloat(order.total).toFixed(2)}`;
+                
+                // Display order items
+                if (!order.items || order.items.length === 0) {
+                    orderItemsList.innerHTML = "<p>No items in this order.</p>";
+                    return;
+                }
+                
+                // Build items HTML
+                const itemsHtml = order.items.map(item => `
+                    <div class="order-item">
+                        <img src="${API_URL}/api/admin/uploads/${item.product_img || 'placeholder.jpg'}" 
+                             alt="${item.product_name}" 
+                             onerror="this.src='./Images/placeholder.jpg'">
+                        <div class="item-details">
+                            <h4>${item.product_name}</h4>
+                            <p>Quantity: ${item.quantity}</p>
+                            <p>Price: $${parseFloat(item.price).toFixed(2)}</p>
+                        </div>
+                        <div class="item-total">
+                            $${(parseFloat(item.price) * parseInt(item.quantity)).toFixed(2)}
+                        </div>
+                    </div>
+                `).join('');
+                
+                orderItemsList.innerHTML = itemsHtml;
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                
+                orderItemsList.innerHTML = `
+                    <div style="text-align:center; padding:20px; color:#e74c3c;">
+                        <h3>Error Loading Order</h3>
+                        <p>${error.message}</p>
+                        <button onclick="window.location.href='orders.html'" class="btn">View All Orders</button>
+                    </div>
+                `;
+            });
+            
+            // Update cart count
+            updateCartCount();
+        });
+        
+        // Update cart count function
+        function updateCartCount() {
+            const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+            const totalItems = cartItems.reduce((total, item) => total + (item.quantity || 1), 0);
+            
+            const cartCountElement = document.getElementById('cart-count');
+            if (cartCountElement) {
+                cartCountElement.textContent = totalItems;
+            }
+        }
+    </script>
+</body>
+</html>
